@@ -140,8 +140,9 @@
         } else {
           const res = await fetch(BATCH_API);
           const data = await res.json();
+          const batchesArray = data.batches || data; // Fallback in case it's a direct array
           // Filter excluded
-          allBatches = data.filter(b => {
+          allBatches = batchesArray.filter(b => {
             if (EXCLUDED.includes(b.name)) return false;
             if (b.name.includes('NSAT') || b.name.includes('PW-SAT') || b.name.includes('Foundation')) return false;
             return true;
