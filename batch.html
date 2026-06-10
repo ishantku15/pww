@@ -149,7 +149,7 @@
           
           let actionBtn = '';
           const isPdfOnly = !item.isVideoLecture && item.hasAttachment;
-          const subject = item.subjectId && item.subjectId.subject ? item.subjectId.subject : 'Class';
+          const subject = item.subjectId && (item.subjectId.name || item.subjectId.subject) ? (item.subjectId.name || item.subjectId.subject) : 'Class';
           const subjectSlug = item.subjectId ? item.subjectId.slug : '';
           const subject_id = item.subjectId ? item.subjectId._id : '';
           
@@ -289,7 +289,7 @@
       }
       const noticesSubj = window.allSubjects.find(s => s.subject && s.subject.toLowerCase() === 'notices');
       if (noticesSubj) {
-        window.location.href = `topic.html?batchId=${batchId}&subjectSlug=${noticesSubj.slug}&topicSlug=all-contents&topicName=Announcements`;
+        window.location.href = `topic.html?batchId=${batchId}&subjectSlug=${noticesSubj.slug}&topicSlug=all-contents&topicName=Announcements&tab=notes`;
       } else {
         alert('No announcements available for this batch.');
       }

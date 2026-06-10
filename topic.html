@@ -204,10 +204,10 @@
     </header>
 
     <div class="topic-tabs">
-      <div class="topic-tab active" data-tab="videos">Lectures</div>
+      <div class="topic-tab" data-tab="videos">Lectures</div>
       <div class="topic-tab" data-tab="notes">Notes</div>
-      <div class="topic-tab" data-tab="exercises">DPP</div>
-      <div class="topic-tab" data-tab="dpp-videos">DPP Videos</div>
+      <div class="topic-tab" data-tab="dpp">DPP</div>
+      <div class="topic-tab" data-tab="dppVideos">DPP Videos</div>
     </div>
 
     <main>
@@ -232,9 +232,15 @@
 
     const WORKER = 'https://pw.2snfjitu.workers.dev';
     
-    let currentTab = 'videos';
+    let currentTab = urlParams.get('tab') || 'videos';
 
     const tabs = document.querySelectorAll('.topic-tab');
+    
+    // Set active tab on load
+    const activeTabEl = document.querySelector(`.topic-tab[data-tab="${currentTab}"]`);
+    if (activeTabEl) activeTabEl.classList.add('active');
+    else if(tabs[0]) tabs[0].classList.add('active');
+
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
@@ -288,7 +294,7 @@
           const date = item.date || item.createdAt;
           const formattedDate = date ? formatDate(date) : 'Recent';
 
-          if (currentTab === 'videos' || currentTab === 'dpp-videos') {
+          if (currentTab === 'videos' || currentTab === 'dppVideos') {
             const vidId = (item.videoDetails && item.videoDetails.findKey) ? item.videoDetails.findKey : item._id;
             const duration = (item.videoDetails && item.videoDetails.duration) ? item.videoDetails.duration : (item.duration || '00:00:00');
             let imgUrl = 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png'; // placeholder
@@ -320,8 +326,8 @@
               </div>
             `;
           } 
-          else if (currentTab === 'exercises' || currentTab === 'notes') {
-            const tag = currentTab === 'exercises' ? 'DPP' : 'NOTE';
+          else if (currentTab === 'dpp' || currentTab === 'notes') {
+            const tag = currentTab === 'dpp' ? 'DPP' : 'NOTE';
 
             cardHtml = `
               <div class="content-card animate-fadeSlideUp">
