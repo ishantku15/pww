@@ -20,7 +20,7 @@
         <button class="header-btn" onclick="shareBatch()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
         </button>
-        <button class="header-btn" onclick="alert('Announcements coming soon!')">
+        <button class="header-btn" onclick="openAnnouncements()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </button>
       </div>
@@ -215,6 +215,8 @@
           });
         }
         
+        window.allSubjects = data.subjects || [];
+        
         // Render description
         if (data.description) {
           document.getElementById('about-section').classList.remove('hidden');
@@ -277,6 +279,19 @@
         }
       } catch (err) {
         alert('Failed to fetch PDF');
+      }
+    };
+
+    window.openAnnouncements = function() {
+      if (!window.allSubjects) {
+        alert('Still loading...');
+        return;
+      }
+      const noticesSubj = window.allSubjects.find(s => s.subject && s.subject.toLowerCase() === 'notices');
+      if (noticesSubj) {
+        window.location.href = `topic.html?batchId=${batchId}&subjectSlug=${noticesSubj.slug}&topicSlug=all-contents&topicName=Announcements`;
+      } else {
+        alert('No announcements available for this batch.');
       }
     };
 

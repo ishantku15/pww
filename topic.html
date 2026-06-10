@@ -325,11 +325,14 @@
             // Both DPP and Notes have attachment URLs
             let downloadUrl = '#';
             if (item.url) {
-               downloadUrl = `${WORKER}/api/pw/view?url=${encodeURIComponent(item.url)}&filename=${encodeURIComponent(title)}`;
+               downloadUrl = item.url;
             } else if (item.attachmentUrl) {
-               downloadUrl = `${WORKER}/api/pw/view?url=${encodeURIComponent(item.attachmentUrl)}&filename=${encodeURIComponent(title)}`;
+               downloadUrl = item.attachmentUrl;
+            } else if (item.homeworkIds && item.homeworkIds[0] && item.homeworkIds[0].attachmentIds && item.homeworkIds[0].attachmentIds[0]) {
+               const att = item.homeworkIds[0].attachmentIds[0];
+               downloadUrl = att.baseUrl + (att.key || att.name);
             } else if (item.homeworkIds && item.homeworkIds[0] && item.homeworkIds[0].attachmentUrl) {
-               downloadUrl = `${WORKER}/api/pw/view?url=${encodeURIComponent(item.homeworkIds[0].attachmentUrl)}&filename=${encodeURIComponent(title)}`;
+               downloadUrl = item.homeworkIds[0].attachmentUrl;
             }
 
             cardHtml = `
