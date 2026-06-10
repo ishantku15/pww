@@ -183,7 +183,7 @@
       
       <div id="timer-display" class="timer">24:00:00</div>
       
-      <button onclick="window.location.href='index.html'" class="btn btn-accent mt-4">
+      <button onclick="const ret = localStorage.getItem('auth_return_url'); if(ret) { localStorage.removeItem('auth_return_url'); window.location.href = ret; } else { window.location.href='index.html'; }" class="btn btn-accent mt-4">
         Enter Multiverse
       </button>
     </div>

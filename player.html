@@ -145,9 +145,6 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-icon" style="background: rgba(0,0,0,0.3)" onclick="document.getElementById('dl-overlay').classList.add('open')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          </button>
           <button class="btn-icon" style="background: rgba(0,0,0,0.3)" onclick="toggleSidePanel()" id="btn-panel-toggle">
             <svg width="22" height="22" viewBox="0 0 27 27" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M3.375 5.625H3.3875M3.375 13.5H3.3875M3.375 21.375H3.3875M9 5.625H23.625M9 13.5H23.625M9 21.375H23.625"></path></svg>
           </button>
@@ -232,38 +229,7 @@
     <div class="panel-content" id="panel-notes" style="display:none"></div>
   </div>
 
-  <!-- Download Overlay -->
-  <div class="dl-overlay" id="dl-overlay" onclick="this.classList.remove('open')">
-    <div class="dl-panel" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 32px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.1)">
-        <h2 style="font-size:1.125rem;">Download Video</h2>
-        <button onclick="document.getElementById('dl-overlay').classList.remove('open')" style="font-size: 1.5rem; color: rgba(255,255,255,0.3)">×</button>
-      </div>
-      
-      <div style="margin-bottom: 24px;">
-        <div style="display:flex; gap:12px; align-items:center; margin-bottom: 8px;">
-          <div style="background:rgba(239,68,68,0.15); padding:10px; border-radius:12px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" color="#ef4444"><path d="M21.582 6.186a2.684 2.684 0 0 0-1.884-1.894C17.986 3.8 12 3.8 12 3.8s-5.986 0-7.698.492a2.684 2.684 0 0 0-1.884 1.894C1.926 7.914 1.926 12 1.926 12s0 4.086.492 5.814a2.684 2.684 0 0 0 1.884 1.894C6.014 20.2 12 20.2 12 20.2s5.986 0 7.698-.492a2.684 2.684 0 0 0 1.884-1.894C22.074 16.086 22.074 12 22.074 12s0-4.086-.492-5.814zM9.99 15.54V8.46L16.14 12l-6.15 3.54z"></path></svg></div>
-          <h3 style="font-size:1rem; font-weight:600;">Watch Tutorial</h3>
-        </div>
-        <p style="font-size:0.875rem; color:rgba(255,255,255,0.4); margin-bottom: 12px;">Learn how to download using 1DM app.</p>
-        <button class="dl-btn red" onclick="window.open('https://www.youtube.com/@NotJitu1022','_blank')">Open YouTube</button>
-      </div>
 
-      <div style="height:1px; background:rgba(255,255,255,0.1); margin: 24px 0;"></div>
-
-      <div>
-        <div style="display:flex; gap:12px; align-items:center; margin-bottom: 8px;">
-          <div style="background:rgba(139,92,246,0.15); padding:10px; border-radius:12px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></div>
-          <h3 style="font-size:1rem; font-weight:600;">Download with 1DM</h3>
-        </div>
-        <p style="font-size:0.875rem; color:rgba(255,255,255,0.4); margin-bottom: 12px;">Opens 1DM or redirects to Play Store.</p>
-        <button class="dl-btn" id="btn-dl-1dm">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          Download
-        </button>
-      </div>
-    </div>
-  </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -482,9 +448,6 @@
     // Shaka / DRM init
     async function initShaka(url) {
       manifestUrl = url;
-      document.getElementById('btn-dl-1dm').onclick = () => {
-        window.location.href = `/download?url=${encodeURIComponent(url.replace(/\.mpd/i, '.m3u8'))}`;
-      };
 
       shaka.polyfill.installAll();
       if (!shaka.Player.isBrowserSupported()) {

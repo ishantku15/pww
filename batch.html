@@ -154,18 +154,21 @@
           const subject_id = item.subjectId ? item.subjectId._id : '';
           
           if (isPdfOnly) {
-            actionBtn = `<button class="btn btn-outline" onclick="openPdf('${item._id}', '${subject_id}')">Open PDF</button>`;
+            actionBtn = `<button class="btn btn-outline w-full" onclick="openPdf('${item._id}', '${subject_id}')">Open PDF</button>`;
           } else {
             const vidId = (item.videoDetails && item.videoDetails.findKey) ? item.videoDetails.findKey : item._id;
-            actionBtn = `<button class="btn btn-primary" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}'">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Play Lecture
+            actionBtn = `<button class="btn btn-primary flex-1" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Play
             </button>`;
+            if (item.hasAttachment) {
+               actionBtn += `<button class="btn btn-outline flex-1" onclick="window.location.href='topic.html?batchId=${batchId}&subjectSlug=${subjectSlug}&topicSlug=all-contents&topicName=Notes&tab=notes'">Notes</button>`;
+            }
           }
           
           // Image
           let imgUrl = 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
-          if (item.facultyId && Array.isArray(item.facultyId) && item.facultyId[0]) {
-            const facId = item.facultyId[0];
+          if (item.teachers && Array.isArray(item.teachers) && item.teachers[0]) {
+            const facId = item.teachers[0];
             if (teacherMap[facId] && teacherMap[facId].image) {
               imgUrl = teacherMap[facId].image.baseUrl + teacherMap[facId].image.key;
             }

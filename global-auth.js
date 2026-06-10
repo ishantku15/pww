@@ -8,25 +8,30 @@
   var ACCESS_KEY = 'multiverse_access_expiry';
   var ACCESS_PAGE = 'get-access.html';
   
-  function checkAccess() {
+  function hasAccess() {
     var expiry = localStorage.getItem(ACCESS_KEY);
     var now = Date.now();
-    
-    // No token exists, or it's expired
-    if (!expiry || parseInt(expiry, 10) <= now) {
-      // Aggressively nuke the expired token
+    return (expiry && parseInt(expiry, 10) > now);
+  }
+  
+  function enforceAccess(returnUrl) {
+    if (!hasAccess()) {
       localStorage.removeItem(ACCESS_KEY);
-      
-      // Don't redirect if we're already on the access page
+      localStorage.setItem('auth_return_url', returnUrl || window.location.href);
       if (window.location.pathname.indexOf(ACCESS_PAGE) === -1) {
         window.location.href = ACCESS_PAGE;
       }
+      return false;
     }
+    return true;
   }
   
-  // Execute immediately — blocks rendering until access is confirmed
-  checkAccess();
+  // Expose globally
+  window.hasAccess = hasAccess;
+  window.enforceAccess = enforceAccess;
   
-  // Also expose globally so pages can re-check on demand
-  window.checkAccess = checkAccess;
+  // Auto-enforce ONLY on player.html
+  if (window.location.pathname.indexOf('player.html') !== -1) {
+    enforceAccess();
+  }
 })();

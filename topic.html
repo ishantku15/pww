@@ -334,7 +334,7 @@
                   </div>
                 </div>
                 <div class="card-actions" style="margin-left: 96px;">
-                  <button class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-primary);" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subjectId}&topicSlug=${topicSlug}'">
+                  <button class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-primary);" onclick="window.playVideo('player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subjectId}&topicSlug=${topicSlug}')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path></svg> Watch
                   </button>
                   <button class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-primary);" onclick="document.querySelector('.topic-tab[data-tab=\\'notes\\']').click();">
@@ -405,7 +405,13 @@
       localStorage.setItem('completed_lectures', JSON.stringify(completed));
     };
 
+    window.playVideo = function(url) {
+      if (!window.enforceAccess(url)) return;
+      window.location.href = url;
+    };
+
     window.openPdf = async function(contentId) {
+      if (!window.enforceAccess()) return;
       try {
         const res = await fetch(`${WORKER}/api/pw/attachments-url?BatchId=${batchId}&SubjectId=${subjectId}&ContentId=${contentId}`);
         const data = await res.json();
