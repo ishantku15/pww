@@ -186,15 +186,15 @@
         }
 
         data.data.forEach((item, idx) => {
-          let firstName = item.createdBy?.firstName || 'JituVault';
-          let lastName = item.createdBy?.lastName || 'Official';
+          let firstName = item.createdBy?.firstName || 'AS Multiverse';
+          let lastName = item.createdBy?.lastName || 'By Ishant';
           if(firstName === 'Batch Coordinator' && lastName.toLowerCase().includes('bm')) {
-             firstName = 'JituVault';
-             lastName = 'Official';
+             firstName = 'AS Multiverse';
+             lastName = 'By Ishant';
           }
           
           let senderName = `${firstName} ${lastName}`.trim();
-          let senderInitial = senderName.charAt(0).toUpperCase();
+          let senderAvatarHtml = `<img src="https://nexttoppers.asmultiverse.in/logo.png" alt="Logo">`;
 
           let attachmentHtml = '';
           if (item.attachment && item.attachment.baseUrl && item.attachment.key) {
@@ -211,7 +211,7 @@
           
           card.innerHTML = `
             <div class="sender-info">
-              <div class="sender-avatar">${senderInitial}</div>
+              <div class="sender-avatar">${senderAvatarHtml}</div>
               <div class="sender-details">
                 <div class="sender-name">
                   ${senderName}
