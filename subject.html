@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>As Multiverse — Subject</title>
+  <link rel="icon" href="https://nexttoppers.asmultiverse.in/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="global-auth.js"></script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="loading-bar hidden" id="loading-bar"><div class="loading-bar-inner"></div></div>
+      <div class="header-inner">
+        <button class="header-back" onclick="window.history.back()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h1 class="header-title" id="subject-name">Loading...</h1>
+      </div>
+    </header>
+
+    <main class="container-narrow pt-6">
+      <div class="flex flex-col gap-3 stagger" id="topics-container">
+        <!-- Skeleton -->
+        <div class="skeleton skeleton-list-item"></div>
+        <div class="skeleton skeleton-list-item"></div>
+        <div class="skeleton skeleton-list-item"></div>
+        <div class="skeleton skeleton-list-item"></div>
+        <div class="skeleton skeleton-list-item"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const batchId = urlParams.get('batchId');
+    const subjectSlug = urlParams.get('subjectSlug');
+    const subjectName = urlParams.get('subjectName') || 'Subject';
+    const subjectId = urlParams.get('subjectId');
+    
+    document.getElementById('subject-name').textContent = subjectName;
+    document.title = `As Multiverse — ${subjectName}`;
+
+    const WORKER = 'https://pw.2snfjitu.workers.dev';
+
+    async function fetchTopics() {
+      if (!batchId || !subjectSlug) {
+        window.location.href = 'index.html';
+        return;
+      }
+      
+      const container = document.getElementById('topics-container');
+      document.getElementById('loading-bar').classList.remove('hidden');
+      
+      try {
+        const res = await fetch(`${WORKER}/api/pw/topics?BatchId=${batchId}&SubjectId=${subjectSlug}`);
+        const data = await res.json();
+        
+        container.innerHTML = '';
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to fetch topics');
+        }
+        
+        const topics = Array.isArray(data.data) ? data.data : [];
+        
+        if (topics.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              </div>
+              <h2 class="empty-state-title">No topics found</h2>
+            </div>
+          `;
+          return;
+        }
+
+        // Aggregate counts for synthetic "All Contents"
+        let totalVideos = 0, totalExercises = 0, totalNotes = 0;
+        topics.forEach(t => {
+          totalVideos += (t.videos || t.lectureVideos || 0);
+          totalExercises += (t.exercises || 0);
+          totalNotes += (t.notes || 0);
+        });
+        
+        const allContents = {
+          _id: 'all-contents',
+          name: 'All Contents',
+          slug: 'all-contents',
+          videos: totalVideos,
+          exercises: totalExercises,
+          notes: totalNotes
+        };
+        
+        const fullList = [allContents, ...topics];
+        
+        fullList.forEach((topic) => {
+          const isAll = topic._id === 'all-contents';
+          const videos = topic.videos || topic.lectureVideos || 0;
+          const exercises = topic.exercises || 0;
+          const notes = topic.notes || 0;
+          
+          const item = document.createElement('div');
+          item.className = `list-item ${isAll ? 'list-item-violet' : ''}`;
+          
+          item.onclick = () => {
+            window.location.href = `topic.html?batchId=${batchId}&subjectSlug=${subjectSlug}&topicSlug=${topic.slug}&topicName=${encodeURIComponent(topic.name)}&topicId=${topic._id}&subjectId=${subjectId}`;
+          };
+          
+          let metaHtml = '';
+          if (videos > 0) metaHtml += `<span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> ${videos} Videos</span>`;
+          if (exercises > 0) metaHtml += `<span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> ${exercises} Exercises</span>`;
+          if (notes > 0) metaHtml += `<span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> ${notes} Notes</span>`;
+          
+          let tagsHtml = '';
+          if (isAll) {
+             tagsHtml = `<div class="flex gap-2 mt-2">
+               <span class="tag-pill">All Videos</span>
+               <span class="tag-pill">All Exercises</span>
+               <span class="tag-pill">All Notes</span>
+             </div>`;
+          }
+
+          item.innerHTML = `
+            <div class="section-dot ${isAll ? 'section-dot-violet' : 'section-dot-gray'}"></div>
+            <div class="list-item-content pl-2">
+              <div class="list-item-title">${topic.name}</div>
+              ${(videos > 0 || exercises > 0 || notes > 0) ? `<div class="list-item-meta">${metaHtml}</div>` : ''}
+              ${tagsHtml}
+            </div>
+            <div class="list-item-arrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          `;
+          
+          container.appendChild(item);
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon" style="color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.1);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <h2 class="empty-state-title text-red-400">Something went wrong</h2>
+            <p class="empty-state-subtitle">${err.message}</p>
+          </div>
+        `;
+      } finally {
+        document.getElementById('loading-bar').classList.add('hidden');
+      }
+    }
+
+    fetchTopics();
+  </script>
+</body>
+</html>

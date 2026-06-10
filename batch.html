@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>As Multiverse — Batch</title>
+  <link rel="icon" href="https://nexttoppers.asmultiverse.in/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="global-auth.js"></script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="loading-bar hidden" id="loading-bar"><div class="loading-bar-inner"></div></div>
+      <div class="header-inner">
+        <button class="header-back" onclick="window.history.back()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h1 class="header-title" id="batch-name">Loading...</h1>
+        <button class="header-btn" onclick="shareBatch()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+        </button>
+        <button class="header-btn" onclick="alert('Announcements coming soon!')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="container-narrow pt-6">
+      
+      <!-- Today's Classes -->
+      <section class="mb-6">
+        <div class="section-header">
+          <div class="section-dot section-dot-red"></div>
+          <h2 class="section-title">Today's Classes</h2>
+        </div>
+        
+        <div class="live-scroll custom-scrollbar" id="live-classes-container">
+          <!-- Skeleton -->
+          <div class="skeleton live-card">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="skeleton-btn mt-4"></div></div>
+          </div>
+        </div>
+        
+        <div id="no-live-state" class="empty-state hidden" style="padding: 40px 16px;">
+          <h2 class="empty-state-title" style="font-size: 0.9375rem;">No live classes scheduled for today.</h2>
+        </div>
+      </section>
+
+      <!-- Subjects -->
+      <section class="mb-6">
+        <div class="section-header">
+          <div class="section-dot section-dot-white"></div>
+          <h2 class="section-title">Subjects</h2>
+        </div>
+        
+        <div class="flex flex-col gap-3" id="subjects-container">
+          <!-- Skeleton -->
+          <div class="skeleton skeleton-list-item"></div>
+          <div class="skeleton skeleton-list-item"></div>
+          <div class="skeleton skeleton-list-item"></div>
+        </div>
+        
+        <div id="no-subjects-state" class="empty-state hidden" style="padding: 40px 16px;">
+          <h2 class="empty-state-title" style="font-size: 0.9375rem;">No subjects available.</h2>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="about-section" class="mb-6 hidden">
+        <div class="section-header">
+          <div class="section-dot section-dot-gray"></div>
+          <h2 class="section-title">About Batch</h2>
+        </div>
+        <div class="about-section">
+          <div class="description" id="batch-description"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const batchId = urlParams.get('id');
+    const batchName = urlParams.get('name') || 'Batch Details';
+    
+    document.getElementById('batch-name').textContent = batchName;
+    document.title = `As Multiverse — ${batchName}`;
+
+    const WORKER = 'https://pw.2snfjitu.workers.dev';
+    
+    let teacherMap = {};
+
+    window.shareBatch = function() {
+      const text = `${batchName}\n${window.location.href}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    function parseTime(timeStr) {
+      if (!timeStr) return '';
+      try {
+        const date = new Date(timeStr);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return timeStr;
+      }
+    }
+
+    async function fetchLiveClasses() {
+      try {
+        const res = await fetch(`${WORKER}/api/pw/live`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batchId })
+        });
+        const data = await res.json();
+        const container = document.getElementById('live-classes-container');
+        const noLive = document.getElementById('no-live-state');
+        
+        container.innerHTML = '';
+        
+        if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+          noLive.classList.remove('hidden');
+          container.classList.add('hidden');
+          return;
+        }
+
+        data.data.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'live-card';
+          
+          let tagClass = 'badge-upcoming';
+          let tagText = 'UPCOMING';
+          let isLive = false;
+          
+          if (item.status === 'live' || item.isLive) {
+            tagClass = 'badge-live';
+            tagText = 'LIVE';
+            isLive = true;
+          } else if (item.status === 'past' || item.status === 'ended') {
+            tagClass = 'badge-ended';
+            tagText = 'ENDED';
+          } else if (item.status === 'cancelled') {
+            tagClass = '';
+            tagText = 'CANCELLED';
+          }
+          
+          let actionBtn = '';
+          const isPdfOnly = !item.isVideoLecture && item.hasAttachment;
+          const subject = item.subjectId && item.subjectId.subject ? item.subjectId.subject : 'Class';
+          const subjectSlug = item.subjectId ? item.subjectId.slug : '';
+          const subject_id = item.subjectId ? item.subjectId._id : '';
+          
+          if (isPdfOnly) {
+            actionBtn = `<button class="btn btn-outline" onclick="openPdf('${item._id}', '${subject_id}')">Open PDF</button>`;
+          } else {
+            const vidId = (item.videoDetails && item.videoDetails.findKey) ? item.videoDetails.findKey : item._id;
+            actionBtn = `<button class="btn btn-primary" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Play Lecture
+            </button>`;
+          }
+          
+          // Image
+          let imgUrl = 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
+          if (item.facultyId && Array.isArray(item.facultyId) && item.facultyId[0]) {
+            const facId = item.facultyId[0];
+            if (teacherMap[facId] && teacherMap[facId].image) {
+              imgUrl = teacherMap[facId].image.baseUrl + teacherMap[facId].image.key;
+            }
+          }
+          if (item.image && item.image.baseUrl && item.image.key) {
+             imgUrl = item.image.baseUrl + item.image.key;
+          }
+
+          card.innerHTML = `
+            <div class="live-card-image">
+              <div class="live-card-tag ${tagClass}">${tagText}</div>
+              <img src="${imgUrl}" alt="${subject}" loading="lazy">
+              <div class="live-card-gradient"></div>
+            </div>
+            <div class="live-card-body">
+              <div class="live-card-subject">${subject}</div>
+              <div class="live-card-topic">${item.topic || 'Untitled Session'}</div>
+              <div class="live-card-time">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                ${parseTime(item.startTime)} - ${parseTime(item.endTime)}
+              </div>
+              <div class="mt-4 flex gap-2">
+                ${actionBtn}
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function fetchBatchDetails() {
+      document.getElementById('loading-bar').classList.remove('hidden');
+      try {
+        const res = await fetch(`https://api.penpencil.co/v3/batches/${batchId}/details`);
+        const json = await res.json();
+        
+        if (!json.data) throw new Error('No data');
+        const data = json.data;
+        
+        // Build teacher map
+        if (data.teacherIds) {
+          data.teacherIds.forEach(t => {
+            teacherMap[t._id] = t;
+          });
+        }
+        
+        // Render description
+        if (data.description) {
+          document.getElementById('about-section').classList.remove('hidden');
+          document.getElementById('batch-description').innerHTML = data.description;
+        }
+        
+        // Render subjects
+        const subjectsContainer = document.getElementById('subjects-container');
+        const noSubjects = document.getElementById('no-subjects-state');
+        subjectsContainer.innerHTML = '';
+        
+        if (!data.subjects || data.subjects.length === 0) {
+          noSubjects.classList.remove('hidden');
+          return;
+        }
+        
+        data.subjects.forEach((sub, idx) => {
+          const item = document.createElement('div');
+          item.className = 'list-item animate-fadeSlideUp';
+          item.style.animationDelay = `${idx * 40}ms`;
+          item.onclick = () => {
+            window.location.href = `subject.html?batchId=${batchId}&subjectSlug=${sub.slug}&subjectName=${encodeURIComponent(sub.subject)}&subjectId=${sub.subjectId}`;
+          };
+          
+          let iconHtml = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`;
+          if (sub.icon && sub.icon.baseUrl && sub.icon.key) {
+            iconHtml = `<img src="${sub.icon.baseUrl}${sub.icon.key}" alt="">`;
+          }
+          
+          item.innerHTML = `
+            <div class="list-item-icon">${iconHtml}</div>
+            <div class="list-item-content">
+              <div class="list-item-title">${sub.subject}</div>
+            </div>
+            <div class="list-item-arrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          `;
+          subjectsContainer.appendChild(item);
+        });
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('subjects-container').innerHTML = '<div class="empty-state"><p class="text-red-400">Failed to load batch details.</p></div>';
+      } finally {
+        document.getElementById('loading-bar').classList.add('hidden');
+      }
+    }
+
+    window.openPdf = async function(scheduleId, subjectId) {
+      try {
+        const res = await fetch(`${WORKER}/api/pw/attachments-url?BatchId=${batchId}&SubjectId=${subjectId}&ContentId=${scheduleId}`);
+        const data = await res.json();
+        if (data.success && data.data && data.data.length > 0) {
+          const att = data.data[0];
+          const viewUrl = `${WORKER}/api/pw/view?url=${encodeURIComponent(att.url)}&filename=${encodeURIComponent(att.name)}`;
+          window.open(viewUrl, '_blank');
+        } else {
+          alert('PDF not available');
+        }
+      } catch (err) {
+        alert('Failed to fetch PDF');
+      }
+    };
+
+    if (!batchId) {
+      window.location.href = 'index.html';
+    } else {
+      // Fetch details first to build teacher map, then live classes
+      fetchBatchDetails().then(fetchLiveClasses);
+    }
+  </script>
+</body>
+</html>

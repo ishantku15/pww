@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>As Multiverse — Get Access</title>
+  <link rel="icon" href="https://nexttoppers.asmultiverse.in/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background-color: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Background Effects */
+    .bg-particles {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float 20s infinite ease-in-out;
+    }
+    .orb-1 { width: 300px; height: 300px; background: var(--violet-600); top: -100px; left: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: var(--accent); bottom: -150px; right: -100px; animation-delay: -5s; }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      33% { transform: translate(30px, -50px); }
+      66% { transform: translate(-20px, 20px); }
+    }
+
+    .glass-card {
+      position: relative;
+      z-index: 10;
+      background: rgba(15, 15, 26, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: var(--shadow-elevated);
+      transition: all var(--transition-spring);
+    }
+    
+    .logo-img {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      margin: 0 auto 24px;
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      font-size: 1.75rem;
+      margin-bottom: 12px;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      display: none;
+      animation: scaleIn 300ms ease;
+    }
+    .step.active {
+      display: block;
+    }
+
+    .code-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: white;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      transition: all var(--transition-default);
+    }
+    .code-input:focus {
+      border-color: var(--violet-500);
+      box-shadow: 0 0 0 2px var(--violet-glow-strong);
+    }
+
+    .timer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #00ffcc;
+      text-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+      margin: 24px 0;
+      letter-spacing: -2px;
+    }
+    
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      color: #10b981;
+      border: 2px solid rgba(16, 185, 129, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-particles">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="glass-card">
+    <img src="https://nexttoppers.asmultiverse.in/logo.png" alt="Logo" class="logo-img">
+    
+    <!-- STEP 1: Generate -->
+    <div id="step-1" class="step active">
+      <h1 class="gradient-text">As Multiverse</h1>
+      <p class="subtitle">Generate a new access code to unlock 24 hours of premium content.</p>
+      
+      <div class="flex flex-col gap-3">
+        <button id="btn-generate" class="btn btn-accent">
+          <span>Get Access Code</span>
+        </button>
+        <button id="btn-have-code" class="btn btn-outline">
+          I already have a code
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Verify -->
+    <div id="step-2" class="step">
+      <h1 class="gradient-text">Enter Code</h1>
+      <p class="subtitle">Paste your generated code below</p>
+      
+      <input type="text" id="code-input" class="code-input" placeholder="ASMV-XXXXXX" autocomplete="off">
+      
+      <div class="flex flex-col gap-3">
+        <button id="btn-verify" class="btn btn-primary">
+          Verify & Activate
+        </button>
+        <button id="btn-back" class="btn btn-ghost">
+          Back
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Success -->
+    <div id="step-3" class="step">
+      <div class="success-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+      <h1 class="gradient-text">Access Granted</h1>
+      <p class="subtitle">You have unrestricted access until the timer runs out.</p>
+      
+      <div id="timer-display" class="timer">24:00:00</div>
+      
+      <button onclick="window.location.href='index.html'" class="btn btn-accent mt-4">
+        Enter Multiverse
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const MASTER_KEYS = ['ADMIN2026', 'VIPPASS', 'LO-IS-KING', 'GODMODE'];
+    const ACCESS_KEY = 'multiverse_access_expiry';
+    const PENDING_KEY = 'pending_auth_code';
+    let timerInterval;
+
+    function init() {
+      // Check for existing valid token
+      const expiry = localStorage.getItem(ACCESS_KEY);
+      if (expiry && parseInt(expiry, 10) > Date.now()) {
+        showStep(3);
+        startTimer(parseInt(expiry, 10));
+        return;
+      }
+
+      // Check URL for code param
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeParam = urlParams.get('code');
+      if (codeParam) {
+        document.getElementById('code-input').value = codeParam;
+        showStep(2);
+      }
+    }
+
+    function showStep(stepNum) {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step-${stepNum}`).classList.add('active');
+    }
+
+    function generateCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let randomPart = '';
+      for (let i = 0; i < 6; i++) {
+        randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return 'ASMV-' + randomPart;
+    }
+
+    document.getElementById('btn-generate').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Generating...`;
+      btn.disabled = true;
+
+      try {
+        const code = generateCode();
+        localStorage.setItem(PENDING_KEY, code);
+        
+        // Build return URL
+        const returnUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
+        
+        // Call Edge proxy
+        const res = await fetch(`/api/vplink?url=${encodeURIComponent(returnUrl)}`);
+        const data = await res.json();
+        
+        if (data && (data.shortenedUrl || data.url || data.short_url)) {
+          window.location.href = data.shortenedUrl || data.url || data.short_url;
+        } else {
+          throw new Error('Invalid response from VPLINK');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to generate link. Please try again.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btn-have-code').addEventListener('click', () => {
+      showStep(2);
+      document.getElementById('code-input').focus();
+    });
+
+    document.getElementById('btn-back').addEventListener('click', () => {
+      // Clear URL params without reload
+      window.history.replaceState({}, document.title, window.location.pathname);
+      showStep(1);
+    });
+
+    document.getElementById('btn-verify').addEventListener('click', () => {
+      const input = document.getElementById('code-input').value.trim().toUpperCase();
+      const pendingCode = localStorage.getItem(PENDING_KEY);
+
+      if (!input) return;
+
+      if (MASTER_KEYS.includes(input)) {
+        grantAccess();
+      } else if (pendingCode && input === pendingCode) {
+        localStorage.removeItem(PENDING_KEY);
+        grantAccess();
+      } else {
+        alert('Access Denied: Code is invalid or was generated on a different device.');
+      }
+    });
+
+    function grantAccess() {
+      const expiry = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+      localStorage.setItem(ACCESS_KEY, expiry.toString());
+      
+      // Clear URL params
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      showStep(3);
+      startTimer(expiry);
+    }
+
+    function startTimer(expiryTime) {
+      if (timerInterval) clearInterval(timerInterval);
+      
+      const display = document.getElementById('timer-display');
+      
+      function update() {
+        const now = Date.now();
+        const diff = expiryTime - now;
+        
+        if (diff <= 0) {
+          clearInterval(timerInterval);
+          localStorage.removeItem(ACCESS_KEY);
+          window.location.reload();
+          return;
+        }
+        
+        const h = Math.floor(diff / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        display.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      }
+      
+      update();
+      timerInterval = setInterval(update, 1000);
+    }
+
+    // Initialize
+    init();
+  </script>
+</body>
+</html>

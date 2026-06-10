@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>As Multiverse — All Batches</title>
+  <link rel="icon" href="https://nexttoppers.asmultiverse.in/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="global-auth.js"></script>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="header-inner">
+        <img src="https://nexttoppers.asmultiverse.in/logo.png" alt="Logo" class="header-logo">
+        <h1 class="header-title" id="header-title">Batches</h1>
+        <div class="flex-1 hidden" id="search-container" style="display: flex; align-items: center; background: rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 0 12px; height: 36px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted mr-2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search batches...">
+        </div>
+        <button class="header-btn" id="btn-search-toggle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="container pt-6">
+      <div class="filter-bar">
+        <div style="position: relative;">
+          <button class="filter-btn" id="btn-filter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            Filter
+            <span class="filter-count hidden" id="filter-count">0</span>
+          </button>
+          <div class="filter-dropdown" id="filter-dropdown">
+            <div class="filter-dropdown-title">Class</div>
+            <div class="filter-options">
+              <label class="filter-option" id="opt-11">
+                <div class="filter-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="transparent" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                11th
+              </label>
+              <label class="filter-option" id="opt-12">
+                <div class="filter-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="transparent" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                12th
+              </label>
+              <label class="filter-option" id="opt-12p">
+                <div class="filter-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="transparent" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                Dropper (12+)
+              </label>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-ghost" id="btn-clear-filters">Clear</button>
+              <button class="btn-primary" id="btn-apply-filters">Apply</button>
+            </div>
+          </div>
+        </div>
+        <div class="info-bar">
+          <span id="batch-count">0 batches found</span>
+        </div>
+      </div>
+
+      <div class="grid-batches" id="batches-grid">
+        <!-- Batches will be rendered here -->
+      </div>
+      
+      <div id="loading-skeletons" class="grid-batches mt-6 hidden">
+        <div class="skeleton card"><div class="skeleton-image"></div><div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="flex gap-2 mt-4"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+        <div class="skeleton card"><div class="skeleton-image"></div><div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="flex gap-2 mt-4"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+        <div class="skeleton card"><div class="skeleton-image"></div><div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="flex gap-2 mt-4"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+        <div class="skeleton card"><div class="skeleton-image"></div><div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="flex gap-2 mt-4"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+        <div class="skeleton card"><div class="skeleton-image"></div><div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="flex gap-2 mt-4"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+        <div class="skeleton card"><div class="skeleton-image"></div><div class="skeleton-card-body"><div class="skeleton-line skeleton-line-lg"></div><div class="skeleton-line skeleton-line-sm mt-2"></div><div class="flex gap-2 mt-4"><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+      </div>
+
+      <div class="empty-state hidden" id="empty-state">
+        <div class="empty-state-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <h2 class="empty-state-title">No batches found</h2>
+        <p class="empty-state-subtitle">Try adjusting your filters or search term.</p>
+      </div>
+
+      <div class="text-center mt-8 hidden" id="load-more-container">
+        <button class="btn btn-ghost px-6" id="btn-load-more">Load More</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    const BATCH_API = 'https://rarestudy.github.io/rarestudy/batches.json';
+    const TRENDING = ['Earners', 'Mission 100 NEET', 'Lakshya JEE 2027', 'Lakshya NEET 2027', 'Arjuna JEE 2027', 'Arjuna NEET 2027', 'Udaan 2027', 'Neev 2027', 'Uday 2027', 'Parishram 2027'];
+    const EXCLUDED = ['Little Masters 2026 (Class 5th)', 'Summer Camp 2025 (Class 5th)', 'Junoon (7th Class)', 'Junoon 2025 (Class 7th)', 'PW-NSAT Online -26 Nov (8th Foundation)', 'NSAT 8th Foundation (13-Nov )', 'Summer Camp 2025 (Class 8th)', 'NMMSS Bihar 2025-26 (Class 8th)'];
+    
+    let allBatches = [];
+    let displayedBatches = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 35;
+    
+    let activeFilters = { classes: [] };
+    let searchQuery = '';
+    
+    let enrolledBatches = JSON.parse(localStorage.getItem('enrolledBatches') || '[]');
+
+    // UI Elements
+    const grid = document.getElementById('batches-grid');
+    const skeleton = document.getElementById('loading-skeletons');
+    const emptyState = document.getElementById('empty-state');
+    const loadMoreBtn = document.getElementById('btn-load-more');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const batchCount = document.getElementById('batch-count');
+    
+    // Search UI
+    const btnSearchToggle = document.getElementById('btn-search-toggle');
+    const searchContainer = document.getElementById('search-container');
+    const headerTitle = document.getElementById('header-title');
+    const searchInput = document.getElementById('search-input');
+    
+    // Filter UI
+    const btnFilter = document.getElementById('btn-filter');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    const filterCount = document.getElementById('filter-count');
+    const btnApplyFilters = document.getElementById('btn-apply-filters');
+    const btnClearFilters = document.getElementById('btn-clear-filters');
+    const filterOptions = document.querySelectorAll('.filter-option');
+
+    async function fetchBatches() {
+      skeleton.classList.remove('hidden');
+      grid.innerHTML = '';
+      
+      try {
+        const cacheTs = localStorage.getItem('pwBatchesCacheTs');
+        const cacheData = localStorage.getItem('pwBatchesCache');
+        const now = Date.now();
+        
+        // 24h cache
+        if (cacheData && cacheTs && (now - parseInt(cacheTs)) < 86400000) {
+          allBatches = JSON.parse(cacheData);
+        } else {
+          const res = await fetch(BATCH_API);
+          const data = await res.json();
+          // Filter excluded
+          allBatches = data.filter(b => {
+            if (EXCLUDED.includes(b.name)) return false;
+            if (b.name.includes('NSAT') || b.name.includes('PW-SAT') || b.name.includes('Foundation')) return false;
+            return true;
+          });
+          
+          localStorage.setItem('pwBatchesCache', JSON.stringify(allBatches));
+          localStorage.setItem('pwBatchesCacheTs', now.toString());
+        }
+        
+        // Sort: Trending first, then enrolled, then others
+        allBatches.sort((a, b) => {
+          const aTrend = TRENDING.some(t => a.name.includes(t));
+          const bTrend = TRENDING.some(t => b.name.includes(t));
+          if (aTrend && !bTrend) return -1;
+          if (!aTrend && bTrend) return 1;
+          
+          const aEnr = enrolledBatches.some(e => e._id === a._id);
+          const bEnr = enrolledBatches.some(e => e._id === b._id);
+          if (aEnr && !bEnr) return -1;
+          if (!aEnr && bEnr) return 1;
+          
+          return 0;
+        });
+        
+        applyFiltersAndSearch();
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to load batches', 'error');
+      } finally {
+        skeleton.classList.add('hidden');
+      }
+    }
+
+    function applyFiltersAndSearch() {
+      displayedBatches = allBatches.filter(b => {
+        const nameUpper = b.name.toUpperCase();
+        
+        // Search
+        if (searchQuery && !nameUpper.includes(searchQuery.toUpperCase())) {
+          return false;
+        }
+        
+        // Class Filter
+        if (activeFilters.classes.length > 0) {
+          let matchClass = false;
+          if (activeFilters.classes.includes('11') && nameUpper.includes('11')) matchClass = true;
+          if (activeFilters.classes.includes('12') && nameUpper.includes('12')) matchClass = true;
+          if (activeFilters.classes.includes('12+') && (nameUpper.includes('NEET') || nameUpper.includes('JEE') || nameUpper.includes('DROPPER'))) matchClass = true;
+          if (!matchClass) return false;
+        }
+        
+        return true;
+      });
+      
+      batchCount.textContent = `${displayedBatches.length} batches`;
+      
+      currentPage = 1;
+      grid.innerHTML = '';
+      renderPage();
+    }
+
+    function renderPage() {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE;
+      const paginated = displayedBatches.slice(start, end);
+      
+      if (displayedBatches.length === 0) {
+        emptyState.classList.remove('hidden');
+        loadMoreContainer.classList.add('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      paginated.forEach((batch, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card animate-fadeSlideUp';
+        card.style.animationDelay = `${(idx % ITEMS_PER_PAGE) * 40}ms`;
+        
+        const isEnrolled = enrolledBatches.some(e => e._id === batch._id);
+        const isTrending = TRENDING.some(t => batch.name.includes(t));
+        
+        let badgesHtml = '';
+        if (isTrending) badgesHtml += `<div class="badge badge-trending"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"></path><polyline points="16 6 23 6 23 13"></polyline></svg> Trending</div>`;
+        if (isEnrolled) badgesHtml += `<div class="badge badge-enrolled"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Enrolled</div>`;
+        
+        const imgUrl = batch.previewImage ? batch.previewImage.baseUrl + batch.previewImage.key : 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
+        
+        card.innerHTML = `
+          <div class="card-image-wrap">
+            ${badgesHtml}
+            <img src="${imgUrl}" alt="${batch.name}" onerror="this.src='https://i.ibb.co/9k8fbHmZ/empty-state.png'" loading="lazy">
+            <div class="card-image-overlay"></div>
+          </div>
+          <div class="card-body">
+            <div class="card-title">${batch.name}</div>
+            <div class="card-meta">
+              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Study Material</span>
+              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Interactive</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-primary" onclick="window.location.href='batch.html?id=${batch._id}&name=${encodeURIComponent(batch.name)}'">
+                Study
+              </button>
+              <button class="btn ${isEnrolled ? 'btn-danger' : 'btn-secondary'}" onclick="toggleEnroll(this, '${batch._id}', '${batch.name.replace(/'/g, "\\'")}')">
+                ${isEnrolled ? 'Unenroll' : 'Enroll'}
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      
+      if (end >= displayedBatches.length) {
+        loadMoreContainer.classList.add('hidden');
+      } else {
+        loadMoreContainer.classList.remove('hidden');
+      }
+    }
+
+    // Handlers
+    window.toggleEnroll = function(btn, id, name) {
+      const idx = enrolledBatches.findIndex(e => e._id === id);
+      if (idx > -1) {
+        enrolledBatches.splice(idx, 1);
+        btn.className = 'btn btn-secondary';
+        btn.textContent = 'Enroll';
+        showToast('Removed from enrolled', 'success');
+        // Remove badge from DOM if possible
+        const wrap = btn.closest('.card').querySelector('.card-image-wrap');
+        const badge = wrap.querySelector('.badge-enrolled');
+        if(badge) badge.remove();
+      } else {
+        enrolledBatches.push({_id: id, name: name});
+        btn.className = 'btn btn-danger';
+        btn.textContent = 'Unenroll';
+        showToast('Successfully enrolled', 'success');
+        const wrap = btn.closest('.card').querySelector('.card-image-wrap');
+        wrap.insertAdjacentHTML('beforeend', `<div class="badge badge-enrolled"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Enrolled</div>`);
+      }
+      localStorage.setItem('enrolledBatches', JSON.stringify(enrolledBatches));
+    };
+
+    function showToast(msg, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      let icon = type === 'success' ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>';
+      toast.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg> ${msg}`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, -10px)';
+        toast.style.transition = 'all 300ms ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Search
+    btnSearchToggle.addEventListener('click', () => {
+      const isSearching = searchContainer.style.display === 'flex';
+      if (!isSearching) {
+        headerTitle.style.display = 'none';
+        searchContainer.style.display = 'flex';
+        searchContainer.classList.remove('hidden');
+        searchInput.focus();
+        btnSearchToggle.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+      } else {
+        headerTitle.style.display = 'block';
+        searchContainer.style.display = 'none';
+        searchContainer.classList.add('hidden');
+        searchInput.value = '';
+        searchQuery = '';
+        applyFiltersAndSearch();
+        btnSearchToggle.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';
+      }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      applyFiltersAndSearch();
+    });
+
+    // Filter
+    btnFilter.addEventListener('click', () => {
+      filterDropdown.classList.toggle('open');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!btnFilter.contains(e.target) && !filterDropdown.contains(e.target)) {
+        filterDropdown.classList.remove('open');
+      }
+    });
+
+    filterOptions.forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        opt.classList.toggle('selected');
+        const checkbox = opt.querySelector('.filter-checkbox svg');
+        if (opt.classList.contains('selected')) {
+          checkbox.setAttribute('stroke', 'white');
+        } else {
+          checkbox.setAttribute('stroke', 'transparent');
+        }
+      });
+    });
+
+    btnApplyFilters.addEventListener('click', () => {
+      activeFilters.classes = [];
+      if (document.getElementById('opt-11').classList.contains('selected')) activeFilters.classes.push('11');
+      if (document.getElementById('opt-12').classList.contains('selected')) activeFilters.classes.push('12');
+      if (document.getElementById('opt-12p').classList.contains('selected')) activeFilters.classes.push('12+');
+      
+      if (activeFilters.classes.length > 0) {
+        filterCount.textContent = activeFilters.classes.length;
+        filterCount.classList.remove('hidden');
+        btnFilter.classList.add('active');
+      } else {
+        filterCount.classList.add('hidden');
+        btnFilter.classList.remove('active');
+      }
+      
+      filterDropdown.classList.remove('open');
+      applyFiltersAndSearch();
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      filterOptions.forEach(opt => {
+        opt.classList.remove('selected');
+        opt.querySelector('.filter-checkbox svg').setAttribute('stroke', 'transparent');
+      });
+      activeFilters.classes = [];
+      filterCount.classList.add('hidden');
+      btnFilter.classList.remove('active');
+      applyFiltersAndSearch();
+      filterDropdown.classList.remove('open');
+    });
+
+    loadMoreBtn.addEventListener('click', () => {
+      currentPage++;
+      renderPage();
+    });
+
+    // Boot
+    fetchBatches();
+  </script>
+</body>
+</html>
