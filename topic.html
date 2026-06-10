@@ -296,30 +296,48 @@
 
           if (currentTab === 'videos' || currentTab === 'dppVideos') {
             const vidId = (item.videoDetails && item.videoDetails.findKey) ? item.videoDetails.findKey : item._id;
-            const duration = (item.videoDetails && item.videoDetails.duration) ? item.videoDetails.duration : (item.duration || '00:00:00');
+            const durationRaw = (item.videoDetails && item.videoDetails.duration) ? item.videoDetails.duration : (item.duration || '00:00:00');
+            // Format duration to '1h:34m' format if possible
+            let duration = durationRaw;
+            if (durationRaw.includes(':')) {
+               const parts = durationRaw.split(':');
+               if (parts.length === 3) {
+                  const h = parseInt(parts[0], 10);
+                  const m = parseInt(parts[1], 10);
+                  duration = h > 0 ? `${h}h:${m}m` : `${m}m`;
+               }
+            }
+
             let imgUrl = 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png'; // placeholder
             if (item.videoDetails && item.videoDetails.image) imgUrl = item.videoDetails.image;
             else if (item.previewImage) imgUrl = item.previewImage;
 
-            const tag = currentTab === 'videos' ? 'LECTURE' : 'DPP VIDEO';
+            const tag = currentTab === 'videos' ? 'Lecture' : 'DPP Video';
+            const isCompleted = JSON.parse(localStorage.getItem('completed_lectures') || '[]').includes(item._id);
 
             cardHtml = `
-              <div class="content-card animate-fadeSlideUp">
-                <div class="card-top">
-                  <div class="card-icon">
-                    <img src="${imgUrl}" onerror="this.src='https://i.ibb.co/9k8fbHmZ/empty-state.png'" alt="Thumbnail">
+              <div class="content-card animate-fadeSlideUp" style="position: relative; padding: 20px;">
+                <button class="mark-complete-btn" onclick="toggleComplete(this, '${item._id}')" title="Mark as complete" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; cursor: pointer; color: ${isCompleted ? '#10b981' : 'var(--text-muted)'};">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="${isCompleted ? '#10b981' : 'none'}" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 11 14 15 10" stroke="${isCompleted ? 'white' : 'currentColor'}"></polyline></svg>
+                </button>
+                <div class="card-top" style="align-items: center; gap: 16px; margin-bottom: 16px;">
+                  <div class="card-icon" style="width: 80px; height: 80px; border-radius: 8px; position: relative; overflow: visible;">
+                    <img src="${imgUrl}" onerror="this.src='https://i.ibb.co/9k8fbHmZ/empty-state.png'" alt="Thumbnail" style="border-radius: 8px;">
+                    <div style="position: absolute; bottom: -4px; right: -4px; background: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path></svg>
+                    </div>
                   </div>
-                  <div class="card-info">
-                    <div class="card-meta">${tag} &bull; ${formattedDate}</div>
-                    <div class="card-title" title="${title}">${title}</div>
-                    <div class="card-duration">${duration}</div>
+                  <div class="card-info" style="padding-right: 28px;">
+                    <div class="card-meta" style="text-transform: none; font-size: 0.85rem;">${tag} &bull; ${formattedDate}</div>
+                    <div class="card-title" title="${title}" style="font-size: 1.05rem; margin-top: 4px; margin-bottom: 4px;">${title}</div>
+                    <div class="card-duration" style="font-size: 0.85rem;">${duration}</div>
                   </div>
                 </div>
-                <div class="card-actions">
-                  <button class="btn-action btn-play" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subjectId}&topicSlug=${topicSlug}'">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Watch
+                <div class="card-actions" style="margin-left: 96px;">
+                  <button class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-primary);" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subjectId}&topicSlug=${topicSlug}'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path></svg> Watch
                   </button>
-                  <button class="btn-action btn-secondary-action" onclick="alert('Notes portal coming soon')">
+                  <button class="btn-action" style="background: rgba(255,255,255,0.05); color: var(--text-primary);" onclick="document.querySelector('.topic-tab[data-tab=\\'notes\\']').click();">
                     Notes & more
                   </button>
                 </div>
@@ -369,6 +387,23 @@
         loadingBar.classList.add('hidden');
       }
     }
+
+    window.toggleComplete = function(btn, id) {
+      let completed = JSON.parse(localStorage.getItem('completed_lectures') || '[]');
+      const isCompleted = completed.includes(id);
+      
+      if (isCompleted) {
+        completed = completed.filter(c => c !== id);
+        btn.style.color = 'var(--text-muted)';
+        btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 11 14 15 10" stroke="currentColor"></polyline></svg>';
+      } else {
+        completed.push(id);
+        btn.style.color = '#10b981';
+        btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="#10b981" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 11 14 15 10" stroke="white"></polyline></svg>';
+      }
+      
+      localStorage.setItem('completed_lectures', JSON.stringify(completed));
+    };
 
     window.openPdf = async function(contentId) {
       try {

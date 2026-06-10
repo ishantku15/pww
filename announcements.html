@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>As Multiverse — Announcements</title>
+  <link rel="icon" href="https://nexttoppers.asmultiverse.in/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="global-auth.js"></script>
+  <style>
+    .announcement-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .announcement-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .announcement-card:hover {
+      background: rgba(255,255,255,0.03);
+      border-color: var(--border-strong);
+    }
+    
+    .sender-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sender-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .sender-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .sender-details {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sender-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .sender-badge {
+      background: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    
+    .announcement-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    
+    .announcement-heading {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: white;
+      margin-top: 4px;
+    }
+    
+    .announcement-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    
+    .announcement-attachment {
+      margin-top: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    
+    .announcement-attachment img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="loading-bar hidden" id="loading-bar"><div class="loading-bar-inner"></div></div>
+      <div class="header-inner">
+        <button class="header-back" onclick="window.history.back()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h1 class="header-title" id="header-title">Announcements</h1>
+      </div>
+    </header>
+
+    <main>
+      <div class="announcement-container" id="announcements-container">
+        <!-- Skeleton -->
+        <div class="announcement-card skeleton">
+          <div class="sender-info">
+            <div class="skeleton-image" style="width:36px;height:36px;border-radius:50%"></div>
+            <div class="sender-details w-full">
+              <div class="skeleton-line skeleton-line-sm mb-2"></div>
+              <div class="skeleton-line skeleton-line-sm w-1/2"></div>
+            </div>
+          </div>
+          <div class="skeleton-line skeleton-line-lg w-3/4 mt-2"></div>
+          <div class="skeleton-image mt-2" style="height: 200px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const batchId = urlParams.get('batchId');
+    const batchName = urlParams.get('batchName') || '';
+
+    if (batchName) {
+      document.getElementById('header-title').textContent = 'Announcements — ' + batchName;
+    }
+
+    function formatTime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function fetchAnnouncements() {
+      const container = document.getElementById('announcements-container');
+      const loading = document.getElementById('loading-bar');
+      loading.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`https://pw.2snfjitu.workers.dev/api/pw/announcements?batchId=${batchId}`);
+        const data = await res.json();
+        
+        container.innerHTML = '';
+        
+        if (!data.success || !data.data || data.data.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding: 60px 20px;">
+              <div class="empty-state-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              </div>
+              <h2 class="empty-state-title">No Announcements</h2>
+              <p class="empty-state-subtitle">There are no announcements available for this batch right now.</p>
+            </div>
+          `;
+          return;
+        }
+
+        data.data.forEach((item, idx) => {
+          let firstName = item.createdBy?.firstName || 'JituVault';
+          let lastName = item.createdBy?.lastName || 'Official';
+          if(firstName === 'Batch Coordinator' && lastName.toLowerCase().includes('bm')) {
+             firstName = 'JituVault';
+             lastName = 'Official';
+          }
+          
+          let senderName = `${firstName} ${lastName}`.trim();
+          let senderInitial = senderName.charAt(0).toUpperCase();
+
+          let attachmentHtml = '';
+          if (item.attachment && item.attachment.baseUrl && item.attachment.key) {
+            attachmentHtml = `
+              <div class="announcement-attachment">
+                <img src="${item.attachment.baseUrl}${item.attachment.key}" alt="Attachment">
+              </div>
+            `;
+          }
+
+          const card = document.createElement('div');
+          card.className = 'announcement-card animate-fadeSlideUp';
+          card.style.animationDelay = `${(idx % 10) * 40}ms`;
+          
+          card.innerHTML = `
+            <div class="sender-info">
+              <div class="sender-avatar">${senderInitial}</div>
+              <div class="sender-details">
+                <div class="sender-name">
+                  ${senderName}
+                  <span class="sender-badge">Official</span>
+                </div>
+                <div class="announcement-time">${formatTime(item.scheduleTime || item.createdAt)}</div>
+              </div>
+            </div>
+            <div class="announcement-heading">${item.heading || 'Update'}</div>
+            ${item.announcement ? `<div class="announcement-text">${item.announcement}</div>` : ''}
+            ${attachmentHtml}
+          `;
+          
+          container.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div class="empty-state"><p class="text-red-400">Failed to load announcements.</p></div>';
+      } finally {
+        loading.classList.add('hidden');
+      }
+    }
+
+    if (!batchId) {
+      window.location.href = 'index.html';
+    } else {
+      fetchAnnouncements();
+    }
+  </script>
+</body>
+</html>

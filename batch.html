@@ -288,11 +288,7 @@
         return;
       }
       const noticesSubj = window.allSubjects.find(s => s.subject && s.subject.toLowerCase() === 'notices');
-      if (noticesSubj) {
-        window.location.href = `topic.html?batchId=${batchId}&subjectSlug=${noticesSubj.slug}&topicSlug=all-contents&topicName=Announcements&tab=notes`;
-      } else {
-        alert('No announcements available for this batch.');
-      }
+      window.location.href = `announcements.html?batchId=${batchId}&batchName=${encodeURIComponent(batchName)}`;
     };
 
     if (!batchId) {
