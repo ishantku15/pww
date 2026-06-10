@@ -229,7 +229,7 @@
         if (isTrending) badgesHtml += `<div class="badge badge-trending"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"></path><polyline points="16 6 23 6 23 13"></polyline></svg> Trending</div>`;
         if (isEnrolled) badgesHtml += `<div class="badge badge-enrolled"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Enrolled</div>`;
         
-        const imgUrl = batch.previewImage ? batch.previewImage.baseUrl + batch.previewImage.key : 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
+        const imgUrl = batch.previewImage ? batch.previewImage : 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
         
         card.innerHTML = `
           <div class="card-image-wrap">
