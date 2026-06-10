@@ -1202,3 +1202,37 @@ input {
 .stagger > * {
   animation: fadeSlideUp 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
+
+/* ── Instagram Floating Button ── */
+.ig-floating-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 39, 67, 0.4);
+  z-index: 1000;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+  animation: pulse-ig 2s infinite;
+  text-decoration: none;
+}
+.ig-floating-btn:hover {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 6px 16px rgba(220, 39, 67, 0.6);
+  animation: none;
+}
+.ig-floating-btn svg {
+  width: 28px;
+  height: 28px;
+}
+@keyframes pulse-ig {
+  0% { box-shadow: 0 0 0 0 rgba(220, 39, 67, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(220, 39, 67, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 39, 67, 0); }
+}
