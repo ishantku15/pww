@@ -218,19 +218,18 @@
             return;
         }
         
-        // Attempt to auto-redirect back to the app
-        window.location.href = `intent://auth?code=${codeParam}#Intent;scheme=pwapp;package=com.pw.app;end;`;
+        // Attempt to auto-redirect back to the app, but don't break the web flow
+        if (/android/i.test(navigator.userAgent)) {
+            window.location.href = `intent://auth?code=${codeParam}#Intent;scheme=pwapp;package=com.pw.app;end;`;
+        }
         
         // Emphasize copying the code in case redirect fails
         document.getElementById('main-title').textContent = 'Your Access Code';
-        document.getElementById('main-subtitle').textContent = 'Copy this code and return to the app to activate it.';
-        document.getElementById('btn-copy').style.display = 'flex';
-        document.getElementById('btn-open-app').style.display = 'flex';
+        document.getElementById('main-subtitle').textContent = 'Tap the code to copy it, or click Verify & Activate to unlock the site.';
+        document.getElementById('btn-copy').style.display = 'none'; // Built into the input now
+        document.getElementById('btn-open-app').style.display = 'flex'; // Show return to app button
         
-        // Hide generation UI
-        document.getElementById('btn-generate').style.display = 'none';
-        document.getElementById('divider').style.display = 'none';
-        document.getElementById('btn-verify').style.display = 'none';
+        // DO NOT hide btn-generate, divider, or btn-verify so web users can still use the page
         
         showStep(1);
       }
