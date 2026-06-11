@@ -215,10 +215,21 @@
       // Check URL for code param
       const urlParams = new URLSearchParams(window.location.search);
       const codeParam = urlParams.get('code');
+      const autoVerify = urlParams.get('auto_verify');
+      
       if (codeParam) {
         document.getElementById('code-input').value = codeParam;
         
-        // Emphasize copying the code
+        // If returning via app intent, auto verify
+        if (autoVerify === 'true') {
+            grantAccess();
+            return;
+        }
+        
+        // Attempt to auto-redirect back to the app
+        window.location.href = `intent://auth?code=${codeParam}#Intent;scheme=pwapp;package=com.pw.app;end;`;
+        
+        // Emphasize copying the code in case redirect fails
         document.getElementById('step-2-title').textContent = 'Your Access Code';
         document.getElementById('step-2-subtitle').textContent = 'Copy this code and return to the app to activate it.';
         document.getElementById('btn-copy').style.display = 'flex';
@@ -247,7 +258,8 @@
     });
 
     document.getElementById('btn-open-app').addEventListener('click', () => {
-      window.location.href = 'intent://#Intent;scheme=pwapp;package=com.pw.app;end;';
+      const code = document.getElementById('code-input').value;
+      window.location.href = `intent://auth?code=${code}#Intent;scheme=pwapp;package=com.pw.app;end;`;
       setTimeout(() => {
         alert('If the app didn\'t open automatically, please manually return to it and paste the code.');
       }, 1000);
@@ -276,12 +288,12 @@
       try {
         const code = generateCode();
         localStorage.setItem(PENDING_KEY, code);
-        
-        // Build return URL
-        const returnUrl = `${window.location.origin}${window.location.pathname}?code=${code}`;
+        // Build return URL safely
+        const baseUrl = window.location.href.split('?')[0];
+        const returnUrl = `${baseUrl}?code=${code}`;
         
         // Call Edge proxy
-        const res = await fetch(`/api/vplink?url=${encodeURIComponent(returnUrl)}`);
+        const res = await fetch(`https://pw.2snfjitu.workers.dev/api/vplink?url=${encodeURIComponent(returnUrl)}`);
         const data = await res.json();
         
         if (data && (data.shortenedUrl || data.url || data.short_url)) {
