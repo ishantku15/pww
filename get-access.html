@@ -196,18 +196,18 @@
     let timerInterval;
 
     function init() {
-      // Check for existing valid token
+      // Check URL for code param FIRST so admins can see generated codes even if they have an active session
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeParam = urlParams.get('code');
+      const autoVerify = urlParams.get('auto_verify');
+
+      // Check for existing valid token if no code is in URL
       const expiry = localStorage.getItem(ACCESS_KEY);
-      if (expiry && parseInt(expiry, 10) > Date.now()) {
+      if (expiry && parseInt(expiry, 10) > Date.now() && !codeParam) {
         showStep(3);
         startTimer(parseInt(expiry, 10));
         return;
       }
-
-      // Check URL for code param
-      const urlParams = new URLSearchParams(window.location.search);
-      const codeParam = urlParams.get('code');
-      const autoVerify = urlParams.get('auto_verify');
       
       if (codeParam) {
         document.getElementById('code-input').value = codeParam;
@@ -332,6 +332,17 @@
       
       showStep(3);
       startTimer(expiry);
+
+      // Auto-redirect after 1.5 seconds so they don't even have to click
+      setTimeout(() => {
+        const ret = localStorage.getItem('auth_return_url');
+        if (ret) {
+          localStorage.removeItem('auth_return_url');
+          window.location.href = ret;
+        } else {
+          window.location.href = 'index.html';
+        }
+      }, 1500);
     }
 
     function startTimer(expiryTime) {
