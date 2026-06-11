@@ -129,7 +129,7 @@
         
         container.innerHTML = '';
         
-        if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+        if (!data || !Array.isArray(data.data) || data.data.length === 0) {
           noLive.classList.remove('hidden');
           container.classList.add('hidden');
           return;
