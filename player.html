@@ -266,6 +266,7 @@
     const scheduleId = urlParams.get('schedule_id');
     const subjectId = urlParams.get('subject_id');
     const topicSlug = urlParams.get('topicSlug');
+    const liveUrl = urlParams.get('live_url');
 
     const WORKER = 'https://pw.2snfjitu.workers.dev';
     
@@ -649,6 +650,12 @@
     }
 
     async function fetchVideo() {
+      if (liveUrl) {
+        loaderBar.style.width = '100%';
+        let isYoutube = /youtube\.com|youtu\.be/.test(liveUrl);
+        if (isYoutube) { initYouTube(liveUrl); } else { initShaka(liveUrl); }
+        return;
+      }
       if (!videoId || !batchId || !subjectId) return showError('Missing parameters');
       
       try {

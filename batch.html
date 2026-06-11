@@ -174,18 +174,30 @@
             actionBtn = `<button class="btn btn-outline w-full" onclick="openPdf('${item._id}', '${subject_id}')">Open PDF</button>`;
           } else {
             const vidId = (item.videoDetails && item.videoDetails.findKey) ? item.videoDetails.findKey : item._id;
-            actionBtn = `<button class="btn btn-primary w-full" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}'">
+            let targetUrl = `player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}`;
+            if (item.url) {
+              targetUrl += `&live_url=${encodeURIComponent(item.url)}`;
+            }
+            actionBtn = `<button class="btn btn-primary w-full" onclick="window.location.href='${targetUrl}'">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Play Lecture
             </button>`;
           }
           
-          // Teacher profile image from teacherMap (matching original site)
+          // Teacher profile image from teacherMap or direct object
           let imgUrl = '';
           if (item.teachers && Array.isArray(item.teachers) && item.teachers.length > 0) {
-            const facId = item.teachers[0];
-            if (teacherMap[facId] && teacherMap[facId].image && teacherMap[facId].image.baseUrl && teacherMap[facId].image.key) {
+            let tObj = item.teachers[0];
+            let facId = typeof tObj === 'object' ? tObj._id : tObj;
+            if (facId && teacherMap[facId] && teacherMap[facId].image && teacherMap[facId].image.baseUrl && teacherMap[facId].image.key) {
               imgUrl = teacherMap[facId].image.baseUrl + teacherMap[facId].image.key;
+            } else if (typeof tObj === 'object' && tObj.image && tObj.image.baseUrl) {
+              imgUrl = tObj.image.baseUrl + tObj.image.key;
+            } else if (typeof tObj === 'object' && tObj.profileUrl) {
+              imgUrl = tObj.profileUrl;
             }
+          }
+          if (!imgUrl && item.facultyId && typeof item.facultyId === 'object' && item.facultyId.image) {
+            imgUrl = item.facultyId.image.baseUrl + item.facultyId.image.key;
           }
           // Fallback to videoDetails thumbnail
           if (!imgUrl && item.videoDetails && item.videoDetails.image) {

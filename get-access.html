@@ -292,8 +292,8 @@
         const baseUrl = window.location.href.split('?')[0];
         const returnUrl = `${baseUrl}?code=${code}`;
         
-        // Call Edge proxy
-        const res = await fetch(`https://pw.2snfjitu.workers.dev/api/vplink?url=${encodeURIComponent(returnUrl)}`);
+        // Call local/hosted API endpoint
+        const res = await fetch(`/api/vplink?url=${encodeURIComponent(returnUrl)}`);
         const data = await res.json();
         
         if (data && (data.shortenedUrl || data.url || data.short_url)) {
