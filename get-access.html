@@ -143,40 +143,32 @@
   <div class="glass-card">
     <img src="https://nexttoppers.asmultiverse.in/logo.png" alt="Logo" class="logo-img">
     
-    <!-- STEP 1: Generate -->
+    <!-- MAIN SCREEN -->
     <div id="step-1" class="step active">
-      <h1 class="gradient-text">As Multiverse</h1>
-      <p class="subtitle">Generate a new access code to unlock 24 hours of premium content.</p>
+      <h1 class="gradient-text" id="main-title">As Multiverse</h1>
+      <p class="subtitle" id="main-subtitle">Generate a new access code to unlock 24 hours of premium content.</p>
       
-      <div class="flex flex-col gap-3">
-        <button id="btn-generate" class="btn btn-accent">
-          <span>Get Access Code</span>
-        </button>
-        <button id="btn-have-code" class="btn btn-outline">
-          I already have a code
-        </button>
-      </div>
-    </div>
+      <button id="btn-generate" class="btn btn-accent" style="margin-bottom: 24px;">
+        <span>Get Access Code</span>
+      </button>
 
-    <!-- STEP 2: Verify -->
-    <div id="step-2" class="step">
-      <h1 class="gradient-text" id="step-2-title">Enter Code</h1>
-      <p class="subtitle" id="step-2-subtitle">Paste your generated code below</p>
-      
-      <input type="text" id="code-input" class="code-input" placeholder="ASMV-XXXXXX" autocomplete="off">
+      <div id="divider" style="display: flex; align-items: center; margin-bottom: 24px; opacity: 0.5;">
+        <div style="flex-grow: 1; border-top: 1px solid var(--border-subtle);"></div>
+        <span style="margin: 0 16px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-secondary); text-transform: uppercase;">OR ENTER CODE</span>
+        <div style="flex-grow: 1; border-top: 1px solid var(--border-subtle);"></div>
+      </div>
+
+      <input type="text" id="code-input" class="code-input" placeholder="ASMV-XXXXXX" autocomplete="off" onclick="if(this.value){ this.select(); navigator.clipboard.writeText(this.value); const original = this.value; this.value = 'Copied!'; setTimeout(() => this.value = original, 1500); }" title="Click to copy">
       
       <div class="flex flex-col gap-3">
+        <button id="btn-verify" class="btn btn-primary">
+          Verify & Activate
+        </button>
         <button id="btn-copy" class="btn btn-accent" style="display: none;">
           Copy Code
         </button>
         <button id="btn-open-app" class="btn btn-outline" style="display: none;">
           Return to App
-        </button>
-        <button id="btn-verify" class="btn btn-primary">
-          Verify & Activate
-        </button>
-        <button id="btn-back" class="btn btn-ghost">
-          Back
         </button>
       </div>
     </div>
@@ -230,12 +222,17 @@
         window.location.href = `intent://auth?code=${codeParam}#Intent;scheme=pwapp;package=com.pw.app;end;`;
         
         // Emphasize copying the code in case redirect fails
-        document.getElementById('step-2-title').textContent = 'Your Access Code';
-        document.getElementById('step-2-subtitle').textContent = 'Copy this code and return to the app to activate it.';
+        document.getElementById('main-title').textContent = 'Your Access Code';
+        document.getElementById('main-subtitle').textContent = 'Copy this code and return to the app to activate it.';
         document.getElementById('btn-copy').style.display = 'flex';
         document.getElementById('btn-open-app').style.display = 'flex';
         
-        showStep(2);
+        // Hide generation UI
+        document.getElementById('btn-generate').style.display = 'none';
+        document.getElementById('divider').style.display = 'none';
+        document.getElementById('btn-verify').style.display = 'none';
+        
+        showStep(1);
       }
     }
 
@@ -309,16 +306,7 @@
       }
     });
 
-    document.getElementById('btn-have-code').addEventListener('click', () => {
-      showStep(2);
-      document.getElementById('code-input').focus();
-    });
 
-    document.getElementById('btn-back').addEventListener('click', () => {
-      // Clear URL params without reload
-      window.history.replaceState({}, document.title, window.location.pathname);
-      showStep(1);
-    });
 
     document.getElementById('btn-verify').addEventListener('click', () => {
       const input = document.getElementById('code-input').value.trim().toUpperCase();
