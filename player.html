@@ -11,15 +11,22 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
     
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #000; color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background: #000; color: #fff; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
     
     @media (min-width: 768px) {
       body { flex-direction: row; }
     }
 
     /* Video Area */
-    .video-container { position: relative; flex: 1; min-width: 0; height: 100vh; background: #000; display: flex; align-items: center; justify-content: center; }
+    .video-container { position: relative; width: 100%; background: #000; display: flex; align-items: center; justify-content: center; }
+    /* Mobile: video takes 56.25vw height (16:9) so panel can sit below */
+    @media (max-width: 767px) {
+      .video-container { height: 56.25vw; max-height: 45vh; flex-shrink: 0; }
+    }
+    @media (min-width: 768px) {
+      .video-container { flex: 1; min-width: 0; height: 100vh; }
+    }
     .video-player { width: 100%; height: 100%; object-fit: contain; }
     .yt-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none; }
     
@@ -27,30 +34,45 @@
     .overlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: space-between; opacity: 1; transition: opacity 0.3s; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 15%, transparent 80%, rgba(0,0,0,0.85) 100%); pointer-events: none; }
     .overlay.hidden { opacity: 0; }
     
-    .top-bar { padding: 16px; display: flex; justify-content: space-between; align-items: center; pointer-events: auto; }
-    .bottom-bar { padding: 16px; pointer-events: auto; }
+    .top-bar { padding: 12px; display: flex; justify-content: space-between; align-items: center; pointer-events: auto; }
+    .bottom-bar { padding: 10px 12px; pointer-events: auto; }
+    @media (min-width: 768px) {
+      .top-bar { padding: 16px; }
+      .bottom-bar { padding: 16px; }
+    }
     
     button { background: transparent; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 8px; }
     button:hover { background: rgba(255,255,255,0.1); color: #8b5cf6; }
     button:active { transform: scale(0.9); }
-    .btn-icon { width: 40px; height: 40px; }
-    .btn-control { width: 48px; height: 48px; }
+    .btn-icon { width: 40px; height: 40px; min-width: 40px; }
+    .btn-control { width: 44px; height: 44px; min-width: 44px; }
+    @media (min-width: 768px) {
+      .btn-control { width: 48px; height: 48px; }
+    }
     
     /* Progress Bar */
-    .progress-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .time-display { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.7); width: 60px; text-align: center; }
-    .progress-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; position: relative; cursor: pointer; }
-    .progress-buffer { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.3); border-radius: 3px; pointer-events: none; }
-    .progress-filled { position: absolute; top: 0; left: 0; height: 100%; background: #8b5cf6; border-radius: 3px; pointer-events: none; }
-    .progress-handle { position: absolute; top: 50%; width: 14px; height: 14px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); opacity: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none; transition: opacity 0.2s; }
-    .progress-bar:hover .progress-handle { opacity: 1; }
+    .progress-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    @media (min-width: 768px) { .progress-wrapper { gap: 12px; margin-bottom: 8px; } }
+    .time-display { font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; color: rgba(255,255,255,0.7); width: 52px; text-align: center; }
+    @media (min-width: 768px) { .time-display { font-size: 0.75rem; width: 60px; } }
+    .progress-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; position: relative; cursor: pointer; touch-action: none; }
+    @media (min-width: 768px) { .progress-bar { height: 6px; } }
+    .progress-buffer { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.3); border-radius: 4px; pointer-events: none; }
+    .progress-filled { position: absolute; top: 0; left: 0; height: 100%; background: #8b5cf6; border-radius: 4px; pointer-events: none; }
+    .progress-handle { position: absolute; top: 50%; width: 16px; height: 16px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); opacity: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none; transition: opacity 0.2s; }
+    @media (min-width: 768px) {
+      .progress-handle { width: 14px; height: 14px; opacity: 0; }
+      .progress-bar:hover .progress-handle { opacity: 1; }
+    }
 
     /* Bottom Controls */
     .controls-row { display: flex; justify-content: space-between; align-items: center; }
-    .controls-left, .controls-right { display: flex; align-items: center; gap: 8px; }
+    .controls-left, .controls-right { display: flex; align-items: center; gap: 4px; }
+    @media (min-width: 768px) { .controls-left, .controls-right { gap: 8px; } }
     
     /* Settings Menu */
-    .settings-menu { position: absolute; bottom: 80px; right: 16px; background: rgba(15,15,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; width: 200px; display: none; overflow: hidden; }
+    .settings-menu { position: absolute; bottom: 70px; right: 8px; background: rgba(15,15,26,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; width: 200px; display: none; overflow: hidden; z-index: 25; }
+    @media (min-width: 768px) { .settings-menu { bottom: 80px; right: 16px; } }
     .settings-menu.open { display: block; }
     .settings-item { padding: 12px 16px; font-size: 0.875rem; display: flex; justify-content: space-between; cursor: pointer; }
     .settings-item:hover { background: rgba(255,255,255,0.1); }
@@ -66,43 +88,49 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Side Panel */
-    .side-panel { width: 100%; height: 100vh; background: #0f0f1a; border-left: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; z-index: 40; transition: transform 0.3s; position: absolute; right: 0; transform: translateX(100%); }
-    .side-panel.open { transform: translateX(0); }
-    @media (min-width: 768px) {
-      .side-panel { width: 384px; position: static; transform: none; display: none; }
+    /* Mobile: bottom sheet style */
+    @media (max-width: 767px) {
+      .side-panel { width: 100%; flex: 1; background: #0f0f1a; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; z-index: 40; position: relative; transform: none; overflow: hidden; }
       .side-panel.open { display: flex; }
     }
-    .panel-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .panel-tab { flex: 1; padding: 16px; font-size: 0.875rem; font-weight: 600; color: rgba(255,255,255,0.3); border-bottom: 2px solid transparent; border-radius: 0; }
+    /* Desktop: right sidebar */
+    @media (min-width: 768px) {
+      .side-panel { width: 384px; height: 100vh; background: #0f0f1a; border-left: 1px solid rgba(255,255,255,0.1); display: none; flex-direction: column; z-index: 40; position: static; transform: none; }
+      .side-panel.open { display: flex; }
+    }
+    .panel-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+    .panel-tab { flex: 1; padding: 12px; font-size: 0.8125rem; font-weight: 600; color: rgba(255,255,255,0.3); border-bottom: 2px solid transparent; border-radius: 0; }
+    @media (min-width: 768px) { .panel-tab { padding: 16px; font-size: 0.875rem; } }
     .panel-tab.active { color: #fff; border-bottom-color: #8b5cf6; }
-    .panel-close { padding: 16px; color: rgba(255,255,255,0.3); }
-    .panel-content { flex: 1; overflow-y: auto; padding: 12px; }
+    .panel-close { padding: 12px; color: rgba(255,255,255,0.3); display: none; }
+    @media (max-width: 767px) { .panel-close { display: none; } }
+    @media (min-width: 768px) { .panel-close { display: flex; padding: 16px; } }
+    .panel-content { flex: 1; overflow-y: auto; padding: 8px; -webkit-overflow-scrolling: touch; }
+    @media (min-width: 768px) { .panel-content { padding: 12px; } }
     
     /* List Items */
-    .panel-item { display: flex; gap: 12px; padding: 12px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s; }
+    .panel-item { display: flex; gap: 10px; padding: 10px; border-radius: 12px; margin-bottom: 6px; cursor: pointer; transition: background 0.2s; }
     .panel-item:hover { background: rgba(255,255,255,0.05); }
     .panel-item.active { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); }
-    .panel-item img { width: 112px; height: 63px; object-fit: cover; border-radius: 8px; background: #000; flex-shrink: 0; }
-    .panel-item-title { font-size: 0.875rem; font-weight: 600; color: rgba(255,255,255,0.85); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
-    .panel-item-meta { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 4px; }
+    .panel-item img { width: 96px; height: 54px; object-fit: cover; border-radius: 8px; background: #000; flex-shrink: 0; }
+    @media (min-width: 768px) { .panel-item img { width: 112px; height: 63px; } }
+    .panel-item-title { font-size: 0.8125rem; font-weight: 600; color: rgba(255,255,255,0.85); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+    @media (min-width: 768px) { .panel-item-title { font-size: 0.875rem; } }
+    .panel-item-meta { font-size: 0.6875rem; color: rgba(255,255,255,0.3); margin-top: 4px; }
     
-    .slide-item { position: relative; margin-bottom: 12px; border-radius: 12px; overflow: hidden; background: #17172a; cursor: pointer; }
+    /* Slides — 2-column grid on mobile */
+    .slides-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (min-width: 768px) { .slides-grid { grid-template-columns: 1fr; gap: 12px; } }
+    .slide-item { position: relative; border-radius: 10px; overflow: hidden; background: #17172a; cursor: pointer; }
     .slide-item:hover { box-shadow: 0 0 0 2px rgba(139,92,246,0.5); }
+    .slide-item:active { transform: scale(0.97); }
     .slide-item img { width: 100%; display: block; }
-    .slide-time { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #c4b5fd; font-family: monospace; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; }
+    .slide-time { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.8); color: #c4b5fd; font-family: monospace; font-size: 0.625rem; padding: 2px 5px; border-radius: 4px; }
+    @media (min-width: 768px) { .slide-time { font-size: 0.75rem; padding: 2px 6px; } }
 
-    .note-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #17172a; border-radius: 12px; margin-bottom: 8px; }
-    .note-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-    /* Download Overlay */
-    .dl-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 60; display: none; justify-content: flex-end; backdrop-filter: blur(4px); }
-    .dl-overlay.open { display: flex; }
-    .dl-panel { width: 100%; max-width: 384px; height: 100%; background: #0f0f1a; border-left: 1px solid rgba(255,255,255,0.1); padding: 24px; animation: slideLeft 0.3s ease; }
-    @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    .dl-btn { width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; background: #8b5cf6; color: #fff; }
-    .dl-btn:hover { background: #7c3aed; }
-    .dl-btn.red { background: #dc2626; }
-    .dl-btn.red:hover { background: #b91c1c; }
+    .note-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #17172a; border-radius: 12px; margin-bottom: 8px; }
+    .note-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    @media (min-width: 768px) { .note-icon { width: 40px; height: 40px; } }
 
     /* Clickable background trap to play/pause */
     .click-trap { position: absolute; inset: 0; z-index: 10; }
@@ -128,7 +156,7 @@
     </div>
 
     <!-- Players -->
-    <video id="shaka-video" class="video-player" playsinline></video>
+    <video id="shaka-video" class="video-player" playsinline autoplay muted></video>
     <div id="yt-container" class="yt-container"></div>
     
     <div class="click-trap" id="click-trap"></div>
@@ -217,7 +245,7 @@
   </div>
 
   <!-- Side Panel -->
-  <div class="side-panel" id="side-panel">
+  <div class="side-panel open" id="side-panel">
     <div class="panel-tabs">
       <button class="panel-tab active" data-target="panel-lectures">Lectures</button>
       <button class="panel-tab" data-target="panel-slides" id="tab-slides" style="display:none">Slides</button>
@@ -398,7 +426,7 @@
         ytPlayer = new YT.Player('yt-player-inner', {
           videoId: ytId,
           width: '100%', height: '100%',
-          playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0, showinfo: 0, playsinline: 1 },
+          playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0, showinfo: 0, playsinline: 1 },
           events: {
             onReady: (e) => {
               duration = e.target.getDuration();
@@ -502,6 +530,17 @@
         loader.style.display = 'none';
         showOverlay();
 
+        // Autoplay: unmute and play
+        try {
+          video.muted = true;
+          await video.play();
+          // Unmute after playback starts (mobile autoplay policy)
+          setTimeout(() => { video.muted = false; }, 300);
+        } catch(autoErr) {
+          console.log('Autoplay blocked, user must tap play');
+          video.muted = false;
+        }
+
       } catch (err) {
         showError(err.message || 'Failed to load video.');
       }
@@ -577,12 +616,18 @@
     function toggleSidePanel() {
       const panel = document.getElementById('side-panel');
       const videoArea = document.getElementById('video-container');
-      if (panel.classList.contains('open')) {
-        panel.classList.remove('open');
-        if (window.innerWidth >= 768) videoArea.style.width = '100%';
+      if (window.innerWidth >= 768) {
+        // Desktop: sidebar toggle
+        if (panel.classList.contains('open')) {
+          panel.classList.remove('open');
+          videoArea.style.width = '100%';
+        } else {
+          panel.classList.add('open');
+          videoArea.style.width = 'calc(100% - 384px)';
+        }
       } else {
-        panel.classList.add('open');
-        if (window.innerWidth >= 768) videoArea.style.width = 'calc(100% - 384px)';
+        // Mobile: panel is always visible below video, toggle just scrolls to it
+        panel.scrollIntoView({ behavior: 'smooth' });
       }
     }
     
@@ -688,7 +733,7 @@
           .then(r => r.json()).then(data => {
             if (data.success && data.data && data.data.slides && data.data.slides.length > 0) {
               document.getElementById('tab-slides').style.display = 'block';
-              const html = data.data.slides.map(s => {
+              const html = '<div class="slides-grid">' + data.data.slides.map(s => {
                 if (!s.img || !s.img.baseUrl || !s.img.key) return '';
                 const imgUrl = s.img.baseUrl + s.img.key;
                 
@@ -707,7 +752,7 @@
                     ${timeHtml}
                   </div>
                 `;
-              }).join('');
+              }).join('') + '</div>';
               document.getElementById('panel-slides').innerHTML = html;
             }
           }).catch(()=>{});

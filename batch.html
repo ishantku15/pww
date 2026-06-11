@@ -104,7 +104,13 @@
       if (!timeStr) return '';
       try {
         const date = new Date(timeStr);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // Convert to IST (UTC+5:30) for display
+        return date.toLocaleTimeString('en-IN', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true,
+          timeZone: 'Asia/Kolkata'
+        });
       } catch (e) {
         return timeStr;
       }
@@ -129,24 +135,50 @@
           return;
         }
 
-        data.data.forEach(item => {
+        // Filter to today's date in IST (UTC+5:30)
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istNow = new Date(now.getTime() + istOffset);
+        const todayIST = istNow.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+        const todaysClasses = data.data.filter(item => {
+          if (!item.date) return false;
+          const itemDate = item.date.split('T')[0];
+          return itemDate === todayIST;
+        });
+
+        if (!todaysClasses || todaysClasses.length === 0) {
+          noLive.classList.remove('hidden');
+          container.classList.add('hidden');
+          return;
+        }
+
+        noLive.classList.add('hidden');
+        container.classList.remove('hidden');
+
+        todaysClasses.forEach(item => {
           const card = document.createElement('div');
           card.className = 'live-card';
           
+          // Status detection — API uses uppercase + tag field
           let tagClass = 'badge-upcoming';
           let tagText = 'UPCOMING';
-          let isLive = false;
           
-          if (item.status === 'live' || item.isLive) {
+          const status = (item.status || '').toUpperCase();
+          const tag = (item.tag || '').toLowerCase();
+          
+          if (status === 'LIVE' || tag === 'live' || item.isLive) {
             tagClass = 'badge-live';
             tagText = 'LIVE';
-            isLive = true;
-          } else if (item.status === 'past' || item.status === 'ended') {
+          } else if (status === 'COMPLETED' || tag === 'ended') {
             tagClass = 'badge-ended';
             tagText = 'ENDED';
-          } else if (item.status === 'cancelled') {
-            tagClass = '';
+          } else if (status === 'CANCELED' || status === 'CANCELLED' || tag === 'cancelled') {
+            tagClass = 'badge-ended';
             tagText = 'CANCELLED';
+          } else if (status === 'PENDING' || tag === 'upcoming') {
+            tagClass = 'badge-upcoming';
+            tagText = 'UPCOMING';
           }
           
           let actionBtn = '';
@@ -159,25 +191,30 @@
             actionBtn = `<button class="btn btn-outline w-full" onclick="openPdf('${item._id}', '${subject_id}')">Open PDF</button>`;
           } else {
             const vidId = (item.videoDetails && item.videoDetails.findKey) ? item.videoDetails.findKey : item._id;
-            actionBtn = `<button class="btn btn-primary flex-1" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}'">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Play
+            actionBtn = `<button class="btn btn-primary w-full" onclick="window.location.href='player.html?video_id=${vidId}&subject_slug=${subjectSlug}&batch_id=${batchId}&schedule_id=${item._id}&subject_id=${subject_id}'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"></path></svg> Play Lecture
             </button>`;
-            if (item.hasAttachment) {
-               actionBtn += `<button class="btn btn-outline flex-1" onclick="window.location.href='topic.html?batchId=${batchId}&subjectSlug=${subjectSlug}&topicSlug=all-contents&topicName=Notes&tab=notes'">Notes</button>`;
-            }
           }
           
-          // Image
-          let imgUrl = 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
-          if (item.teachers && Array.isArray(item.teachers) && item.teachers[0]) {
+          // Teacher profile image from teacherMap (matching original site)
+          let imgUrl = '';
+          if (item.teachers && Array.isArray(item.teachers) && item.teachers.length > 0) {
             const facId = item.teachers[0];
-            if (teacherMap[facId] && teacherMap[facId].image) {
+            if (teacherMap[facId] && teacherMap[facId].image && teacherMap[facId].image.baseUrl && teacherMap[facId].image.key) {
               imgUrl = teacherMap[facId].image.baseUrl + teacherMap[facId].image.key;
             }
           }
-          if (item.image && item.image.baseUrl && item.image.key) {
-             imgUrl = item.image.baseUrl + item.image.key;
+          // Fallback to videoDetails thumbnail
+          if (!imgUrl && item.videoDetails && item.videoDetails.image) {
+            imgUrl = item.videoDetails.image;
           }
+          // Final fallback
+          if (!imgUrl) {
+            imgUrl = 'https://i.ibb.co/9Hm0NqsH/f69ed82b-7169-45fc-a82b-915e453c6340.png';
+          }
+
+          // Format time like original: just start time "03:45 PM"
+          const timeDisplay = parseTime(item.startTime);
 
           card.innerHTML = `
             <div class="live-card-image">
@@ -190,7 +227,7 @@
               <div class="live-card-topic">${item.topic || 'Untitled Session'}</div>
               <div class="live-card-time">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                ${parseTime(item.startTime)} - ${parseTime(item.endTime)}
+                ${timeDisplay}
               </div>
               <div class="mt-4 flex gap-2">
                 ${actionBtn}
