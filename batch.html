@@ -135,28 +135,11 @@
           return;
         }
 
-        // Filter to today's date in IST (UTC+5:30)
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const istNow = new Date(now.getTime() + istOffset);
-        const todayIST = istNow.toISOString().split('T')[0]; // "YYYY-MM-DD"
-
-        const todaysClasses = data.data.filter(item => {
-          if (!item.date) return false;
-          const itemDate = item.date.split('T')[0];
-          return itemDate === todayIST;
-        });
-
-        if (!todaysClasses || todaysClasses.length === 0) {
-          noLive.classList.remove('hidden');
-          container.classList.add('hidden');
-          return;
-        }
-
+        // API already returns today's schedule — render all items
         noLive.classList.add('hidden');
         container.classList.remove('hidden');
 
-        todaysClasses.forEach(item => {
+        data.data.forEach(item => {
           const card = document.createElement('div');
           card.className = 'live-card';
           
