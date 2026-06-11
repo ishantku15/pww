@@ -160,12 +160,18 @@
 
     <!-- STEP 2: Verify -->
     <div id="step-2" class="step">
-      <h1 class="gradient-text">Enter Code</h1>
-      <p class="subtitle">Paste your generated code below</p>
+      <h1 class="gradient-text" id="step-2-title">Enter Code</h1>
+      <p class="subtitle" id="step-2-subtitle">Paste your generated code below</p>
       
       <input type="text" id="code-input" class="code-input" placeholder="ASMV-XXXXXX" autocomplete="off">
       
       <div class="flex flex-col gap-3">
+        <button id="btn-copy" class="btn btn-accent" style="display: none;">
+          Copy Code
+        </button>
+        <button id="btn-open-app" class="btn btn-outline" style="display: none;">
+          Return to App
+        </button>
         <button id="btn-verify" class="btn btn-primary">
           Verify & Activate
         </button>
@@ -211,9 +217,41 @@
       const codeParam = urlParams.get('code');
       if (codeParam) {
         document.getElementById('code-input').value = codeParam;
+        
+        // Emphasize copying the code
+        document.getElementById('step-2-title').textContent = 'Your Access Code';
+        document.getElementById('step-2-subtitle').textContent = 'Copy this code and return to the app to activate it.';
+        document.getElementById('btn-copy').style.display = 'flex';
+        document.getElementById('btn-open-app').style.display = 'flex';
+        
         showStep(2);
       }
     }
+
+    // New button listeners
+    document.getElementById('btn-copy').addEventListener('click', async (e) => {
+      const code = document.getElementById('code-input').value;
+      const btn = e.currentTarget;
+      const originalText = btn.innerHTML;
+      
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.innerHTML = 'Copied!';
+      } catch(err) {
+        const input = document.getElementById('code-input');
+        input.select();
+        document.execCommand('copy');
+        btn.innerHTML = 'Copied!';
+      }
+      setTimeout(() => btn.innerHTML = originalText, 2000);
+    });
+
+    document.getElementById('btn-open-app').addEventListener('click', () => {
+      window.location.href = 'intent://#Intent;scheme=pwapp;package=com.pw.app;end;';
+      setTimeout(() => {
+        alert('If the app didn\'t open automatically, please manually return to it and paste the code.');
+      }, 1000);
+    });
 
     function showStep(stepNum) {
       document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
